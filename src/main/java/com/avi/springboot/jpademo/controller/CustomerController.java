@@ -1,6 +1,8 @@
 package com.avi.springboot.jpademo.controller;
 
-import com.avi.springboot.jpademo.model.Customer;
+import com.avi.springboot.jpademo.entity.Customer;
+import com.avi.springboot.jpademo.exception.CustomerNotFoundException;
+import com.avi.springboot.jpademo.exception.UpdateFailedExecption;
 import com.avi.springboot.jpademo.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -9,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,69 +20,113 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
-    private HttpHeaders addHeader(){
-        HttpHeaders headers=new HttpHeaders();
-        headers.add("application-name","JPA-DEMO-APP");
-        headers.add("Controller-Name","Customer-Controller");
+    private HttpHeaders addHeader() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("app-name", "JPA-DEMO-APP");
+        headers.add("controller-Name", "Customer-Controller");
         return headers;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Customer>> getAllCustomer(){
-        //return new ResponseEntity<>(service.getAll(),addHeader(),HttpStatus.OK);
+    /*================================ GET APIs=================================================*/
+
+    @GetMapping("/customers")
+    public ResponseEntity<List<Customer>> getCustomer(
+            @RequestParam(value = "lastname", required = false) String lastname,
+            @RequestParam(value = "firstname", required = false) String firstname,
+            @RequestParam(value = "id", required = false) Long id) {
+        if (id != null && firstname != null) {
+            return getCustomerByIDAndFirstName(id, firstname);
+        }
+        if (id != null && lastname != null) {
+            return getCustomerByIDAndLastName(id, lastname);
+        }
+        if (id != null) {
+            return getCustomerByID(id);
+        }
+        if (lastname != null) {
+            return getCustomerByLastName(lastname);
+        }
+        if (firstname != null) {
+            return getCustomerByFirstName(firstname);
+        }
         return ResponseEntity.ok().headers(addHeader()).body(service.getAll());
     }
 
-    @GetMapping("/getByID/{id}")
-    public ResponseEntity<Customer> getCustomerByID(@PathVariable("id") Long id) throws Exception{
-        Customer customer=service.getById(id);
-        if(customer!=null){
-            return new ResponseEntity<>(customer,addHeader(),HttpStatus.OK);
-        }else{
-            throw new Exception();
+
+    public ResponseEntity<List<Customer>> getCustomerByID(Long id) throws CustomerNotFoundException {
+        List<Customer> list = new ArrayList<>();
+        Customer customer = service.getById(id);
+        if (customer != null) {
+            list.add(customer);
+            return new ResponseEntity<>(list, addHeader(), HttpStatus.OK);
+        } else {
+            throw new CustomerNotFoundException("Customer id: " + id + " Not Found.");
         }
     }
 
-    @PostMapping(value = "/add",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer){
-        return new ResponseEntity<>(service.save(customer),addHeader(),HttpStatus.CREATED);
+    @GetMapping("/customers/greater")
+    public ResponseEntity<List<Customer>> getCustomerByGreaterThanId(@RequestParam("id") Long id) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomerGreaterThanID(id));
     }
 
-    @PutMapping(value = "/update",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer customer){
-        Customer customer1= service.save(customer);
-        if(customer1!=null){
-            return new ResponseEntity<>(customer,addHeader(),HttpStatus.CREATED);
-        }else{
-            return new ResponseEntity("Update Failed",addHeader(),HttpStatus.EXPECTATION_FAILED);
+    @GetMapping("/customers/lesser")
+    public ResponseEntity<List<Customer>> getCustomerByLesserThanId(@RequestParam("id") Long id) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomerLesserThanID(id));
+    }
+
+    public ResponseEntity<List<Customer>> getCustomerByFirstName(String firstName) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomersByFirstName(firstName));
+    }
+
+    public ResponseEntity<List<Customer>> getCustomerByLastName(String name) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomersByLastName(name));
+    }
+
+    public ResponseEntity<List<Customer>> getCustomerByIDAndFirstName(Long id, String firstName) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomersByIDAndFirstName(id, firstName));
+    }
+
+    public ResponseEntity<List<Customer>> getCustomerByIDAndLastName(Long id, String lastName) {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getCustomersByIDAndLastName(id, lastName));
+    }
+
+    /*================================ POST APIs=================================================*/
+
+    @PostMapping(value = "/customers", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
+        return new ResponseEntity<>(service.save(customer), addHeader(), HttpStatus.CREATED);
+    }
+
+    /*================================ PUT APIs=================================================*/
+
+    @PutMapping(value = "/customers", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer customer) {
+        Customer existing = service.getById(customer.getId());
+        if (existing != null) {
+            try {
+                customer.setId(existing.getId());
+                return new ResponseEntity<>(service.save(customer), addHeader(), HttpStatus.CREATED);
+            } catch (Exception e) {
+                throw new UpdateFailedExecption("Updated Failed with error " + e.getMessage());
+            }
+        } else {
+            throw new CustomerNotFoundException("Customer Id: " + customer.getId() + " Not Found");
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable("id") Long id){
+    /*================================ DELETE APIs=================================================*/
+
+    @DeleteMapping("/customers")
+    public ResponseEntity<String> deleteCustomers() {
+        service.deleteAll();
+        return ResponseEntity.ok().headers(addHeader()).body("All Customers Deleted Successfully");
+    }
+
+    @DeleteMapping("/customers/{id}")
+    public ResponseEntity<String> deleteCustomer(@PathVariable("id") Long id) {
         service.delete(id);
-        return ResponseEntity.ok().headers(addHeader()).body("Customer Deleted Successfully");
+        return ResponseEntity.ok().headers(addHeader()).body("Customer id:" + id + " Deleted Successfully");
     }
 
-    @GetMapping("/getByFirstName/{firstName}")
-    public List<Customer> getCustomerByFirstName(@PathVariable("firstName") String firstName){
-        return service.getCustomersByFirstName(firstName);
-    }
-
-    @GetMapping("/getByLastname/{name}")
-    public List<Customer> getCustomerByLastName(@PathVariable  String name){
-        return service.getCustomersByLastName(name);
-    }
-
-    @GetMapping("/get2")
-    public List<Customer> getCustomerByIDAndFirstName(@RequestParam Long id,
-                                                      @RequestParam String firstName){
-        return service.getCustomersByIDAndFirstName(id,firstName);
-    }
-
-    @GetMapping("/getGT")
-    public List<Customer> getCustomerByGreaterThanId(@RequestParam Long id){
-        return service.getCustomerGreaterThanID(id);
-    }
 
 }
