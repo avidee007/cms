@@ -9,12 +9,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
+@Validated
 public class CustomerController {
 
     @Autowired
@@ -33,7 +37,7 @@ public class CustomerController {
     public ResponseEntity<List<Customer>> getCustomer(
             @RequestParam(value = "lastname", required = false) String lastname,
             @RequestParam(value = "firstname", required = false) String firstname,
-            @RequestParam(value = "id", required = false) Long id) {
+            @Positive @RequestParam(value = "id", required = false) Long id) {
 
         if (id != null && firstname != null) {
             return getCustomerByIDAndFirstName(id, firstname);
@@ -52,7 +56,7 @@ public class CustomerController {
 
 
     @GetMapping("/customer/{id}")
-    public ResponseEntity<Customer> getCustomerByID(@PathParam("id") Long id) throws CustomerNotFoundException {
+    public ResponseEntity<Customer> getCustomerByID(@Positive @PathParam("id") Long id) throws CustomerNotFoundException {
         return ResponseEntity.ok().headers(addHeader()).body(service.getById(id));
     }
 
@@ -85,14 +89,14 @@ public class CustomerController {
     /*================================ POST APIs=================================================*/
 
     @PostMapping(value = "/customers", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer) {
         return new ResponseEntity<>(service.save(customer), addHeader(), HttpStatus.CREATED);
     }
 
     /*================================ PUT APIs=================================================*/
 
     @PutMapping(value = "/customers", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer customer) {
         Customer existing = service.getById(customer.getId());
         if (existing != null) {
             try {
@@ -115,7 +119,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/customers/{id}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteCustomer(@Positive @PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.ok().headers(addHeader()).body("Customer id:" + id + " Deleted Successfully");
     }
