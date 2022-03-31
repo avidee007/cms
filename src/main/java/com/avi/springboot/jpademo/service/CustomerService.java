@@ -1,6 +1,7 @@
 package com.avi.springboot.jpademo.service;
 
 import com.avi.springboot.jpademo.entity.Customer;
+import com.avi.springboot.jpademo.exception.CustomerNotFoundException;
 import com.avi.springboot.jpademo.repository.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,8 @@ public class CustomerService {
         return customerList;
     }
 
-    public Customer getById(Long id) {
-        return repository.findById(id).orElse(null);
+    public Customer getById(Long id) throws CustomerNotFoundException {
+        return repository.findById(id).orElseThrow(() -> new CustomerNotFoundException("Customer with ID : " + id + " not found"));
     }
 
     public Customer save(Customer customer) {

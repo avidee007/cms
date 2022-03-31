@@ -2,7 +2,7 @@ package com.avi.springboot.jpademo.controller;
 
 import com.avi.springboot.jpademo.entity.Customer;
 import com.avi.springboot.jpademo.exception.CustomerNotFoundException;
-import com.avi.springboot.jpademo.exception.UpdateFailedExecption;
+import com.avi.springboot.jpademo.exception.CustomerUpdateFailedExecption;
 import com.avi.springboot.jpademo.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -23,7 +23,7 @@ public class CustomerController {
     private HttpHeaders addHeader() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("app-name", "JPA-DEMO-APP");
-        headers.add("controller-Name", "Customer-Controller");
+        headers.add("controller-name", "Customer-Controller");
         return headers;
     }
 
@@ -34,14 +34,12 @@ public class CustomerController {
             @RequestParam(value = "lastname", required = false) String lastname,
             @RequestParam(value = "firstname", required = false) String firstname,
             @RequestParam(value = "id", required = false) Long id) {
+
         if (id != null && firstname != null) {
             return getCustomerByIDAndFirstName(id, firstname);
         }
         if (id != null && lastname != null) {
             return getCustomerByIDAndLastName(id, lastname);
-        }
-        if (id != null) {
-            return getCustomerByID(id);
         }
         if (lastname != null) {
             return getCustomerByLastName(lastname);
@@ -53,15 +51,9 @@ public class CustomerController {
     }
 
 
-    public ResponseEntity<List<Customer>> getCustomerByID(Long id) throws CustomerNotFoundException {
-        List<Customer> list = new ArrayList<>();
-        Customer customer = service.getById(id);
-        if (customer != null) {
-            list.add(customer);
-            return new ResponseEntity<>(list, addHeader(), HttpStatus.OK);
-        } else {
-            throw new CustomerNotFoundException("Customer id: " + id + " Not Found.");
-        }
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<Customer> getCustomerByID(@PathParam("id") Long id) throws CustomerNotFoundException {
+        return ResponseEntity.ok().headers(addHeader()).body(service.getById(id));
     }
 
     @GetMapping("/customers/greater")
@@ -107,7 +99,7 @@ public class CustomerController {
                 customer.setId(existing.getId());
                 return new ResponseEntity<>(service.save(customer), addHeader(), HttpStatus.CREATED);
             } catch (Exception e) {
-                throw new UpdateFailedExecption("Updated Failed with error " + e.getMessage());
+                throw new CustomerUpdateFailedExecption("Updated Failed with error " + e.getMessage());
             }
         } else {
             throw new CustomerNotFoundException("Customer Id: " + customer.getId() + " Not Found");

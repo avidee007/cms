@@ -12,30 +12,30 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.LocalDateTime;
 
 @ControllerAdvice
-public class AppExecptionHandler extends ResponseEntityExceptionHandler {
+public class CustomerAppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<Object> customerNotFoundExecptionHandler(CustomerNotFoundException cnfe) {
-        ErrorMessage message = new ErrorMessage(cnfe.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
+    public ResponseEntity<Object> customerNotFoundExceptionHandler(CustomerNotFoundException cnfe) {
+        CustomerErrorMessage message = new CustomerErrorMessage(cnfe.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UpdateFailedExecption.class)
-    public ResponseEntity<Object> UpdateFailedExecptionHandler(UpdateFailedExecption cnfe) {
-        ErrorMessage message = new ErrorMessage(cnfe.getMessage(), HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
+    @ExceptionHandler(CustomerUpdateFailedExecption.class)
+    public ResponseEntity<Object> UpdateFailedExceptionHandler(CustomerUpdateFailedExecption cnfe) {
+        CustomerErrorMessage message = new CustomerErrorMessage(cnfe.getMessage(), HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> allExecptionHandler(Exception e) {
-        ErrorMessage message = new ErrorMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
+    public ResponseEntity<Object> allExceptionHandler(Exception e) {
+        CustomerErrorMessage message = new CustomerErrorMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
     // Overriding Methods
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        ErrorMessage message = new ErrorMessage("API Endpoint is not available", status.value(), LocalDateTime.now());
+        CustomerErrorMessage message = new CustomerErrorMessage("API Endpoint is not available", status.value(), LocalDateTime.now());
         return new ResponseEntity<>(message, status);
     }
 }
