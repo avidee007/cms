@@ -1,4 +1,4 @@
-package com.avi.springboot.jpademo.entity;
+package com.avi.springboot.customermgmt.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

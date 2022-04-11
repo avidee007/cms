@@ -1,4 +1,4 @@
-package com.avi.springboot.jpademo.exception;
+package com.avi.springboot.customermgmt.exception;
 
 public class CustomerUpdateFailedExecption extends RuntimeException {
 

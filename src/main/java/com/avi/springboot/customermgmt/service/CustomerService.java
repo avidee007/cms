@@ -1,8 +1,8 @@
-package com.avi.springboot.jpademo.service;
+package com.avi.springboot.customermgmt.service;
 
-import com.avi.springboot.jpademo.entity.Customer;
-import com.avi.springboot.jpademo.exception.CustomerNotFoundException;
-import com.avi.springboot.jpademo.repository.ICustomerRepository;
+import com.avi.springboot.customermgmt.entity.Customer;
+import com.avi.springboot.customermgmt.exception.CustomerNotFoundException;
+import com.avi.springboot.customermgmt.repository.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

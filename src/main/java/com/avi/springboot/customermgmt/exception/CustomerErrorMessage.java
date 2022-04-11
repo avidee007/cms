@@ -1,4 +1,4 @@
-package com.avi.springboot.jpademo.exception;
+package com.avi.springboot.customermgmt.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

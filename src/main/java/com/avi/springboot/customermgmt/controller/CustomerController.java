@@ -1,9 +1,9 @@
-package com.avi.springboot.jpademo.controller;
+package com.avi.springboot.customermgmt.controller;
 
-import com.avi.springboot.jpademo.entity.Customer;
-import com.avi.springboot.jpademo.exception.CustomerNotFoundException;
-import com.avi.springboot.jpademo.exception.CustomerUpdateFailedExecption;
-import com.avi.springboot.jpademo.service.CustomerService;
+import com.avi.springboot.customermgmt.entity.Customer;
+import com.avi.springboot.customermgmt.exception.CustomerNotFoundException;
+import com.avi.springboot.customermgmt.exception.CustomerUpdateFailedExecption;
+import com.avi.springboot.customermgmt.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

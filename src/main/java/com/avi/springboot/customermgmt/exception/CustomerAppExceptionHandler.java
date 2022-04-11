@@ -1,4 +1,4 @@
-package com.avi.springboot.jpademo.exception;
+package com.avi.springboot.customermgmt.exception;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
