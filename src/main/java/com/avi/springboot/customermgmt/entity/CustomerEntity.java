@@ -8,20 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
-
+public class CustomerEntity {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotBlank(message = "First name can not be blank. Please provide valid first name.")
     private String firstName;
-    @NotBlank(message = "Last name can not be blank. Please provide valid last name.")
     private String lastName;
 
 }

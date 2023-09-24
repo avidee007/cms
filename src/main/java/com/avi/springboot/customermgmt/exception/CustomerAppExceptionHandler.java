@@ -21,12 +21,6 @@ public class CustomerAppExceptionHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(CustomerUpdateFailedExecption.class)
-    public ResponseEntity<Object> handleUpdateFailedException(CustomerUpdateFailedExecption cufe) {
-        CustomerErrorMessage message = new CustomerErrorMessage(cufe.getMessage(), HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllException(Exception ex) {
         CustomerErrorMessage message = new CustomerErrorMessage(ex.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
